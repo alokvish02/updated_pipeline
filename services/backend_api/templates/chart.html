@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The One Alpha Charts</title>
+  <script src="https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chart.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nav_side.css') }}">
+
+</head>
+
+<body>
+  <div class="header">
+    <img src="https://www.theonealpha.com/uploads/logo.png" alt="The One Alpha Logo" class="header-logo">
+    <!-- <div id="liveTime">21/06/2025, 01:47:39 PM</div> -->
+    <div class="navbar">
+      <nav>
+        <a href="/" class="performance-btn">Dashboard</a>
+        <a href="/chart" class="performance-btn">Charts</a>
+        <a href="/admin/dashboard" class="performance-btn hide-on-mobile">Admin</a>
+          <select id="exchange-type" name="exchange-type" class="filter-btn">
+            <option id="nse-filter-btn" value="nse">NSE</option>
+            <option id="crypto-filter-btn" value="binance">CRYPTO</option>
+            <option id="snp-filter-btn" value="snp">S&P</option>
+            <option id="etf-filter-btn" value="etf">ETF</option>
+          </select>
+        <a id="sidebarToggle" class="performance-btn">☰</a>
+        <!-- <button id="sidebarToggle" class="mobile-only">☰</button> -->
+      </nav>
+    </div>
+  </div>
+  <hr class="navbar-line">
+
+  <div class="container">
+   
+    <aside id="sidebar" class="sidebar">
+      <div class="logo">
+        <img src="https://www.theonealpha.com/uploads/logo.png" alt="The One Alpha Logo">
+      </div>
+      <ul>
+        <div id="search-container">
+          <div class="section-filter-buttons">
+            <button class="section-btn" data-section="tables">Stocks</button>
+            <button class="section-btn" data-section="spreads">Spreads</button>
+            <button class="section-btn" data-section="favorites">❤️</button>
+          </div>
+          <section id="tables-section">
+            <input type="text" id="table-search" placeholder="Search Tables" />
+            <ul id="table-list" class="full-height-list"></ul>
+          </section>
+          <section id="spreads-section">
+            <input type="text" id="spreads-search" placeholder="Search Spreads" />
+            <ul id="spreads-list" class="full-height-list"></ul>
+          </section>
+          <section id="favorites-section">
+            <ul id="favorites-list" class="full-height-list"></ul>
+          </section>
+        </div>
+      </ul>
+    </aside>
+    <main>
+      <div id="chart-wrapper">
+        <div id="chart-header">
+          <h3>Chart Open For: <span id="current-symbol">-</span></h3>
+          <div id="ltp-display" style="font-weight: bold;">LTP: -</div>
+          <a id="refresh-chart-btn" href="">Refresh Chart</a>
+        </div>
+
+        <div id="timeframe-buttons">
+          <button class="timeframe-btn" data-timeframe="1">1 M</button>
+          <button class="timeframe-btn" data-timeframe="5">5 M</button>
+          <button class="timeframe-btn" data-timeframe="15">15 M</button>
+          <button class="timeframe-btn" data-timeframe="30">30 M</button>
+          <button class="timeframe-btn" data-timeframe="1440">1 D</button>
+        </div>
+        <div id="chart-container"></div>
+      </div>
+    </main>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+      <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+<!--  <script src="./js/chart-popup.js"></script>-->
+  </div>
+</body>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+
+  if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', (event) => {
+      event.stopPropagation();
+      sidebar.classList.toggle('active');
+    });
+
+    sidebar.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+        sidebar.classList.remove('active');
+      }
+    });
+
+    // Handle touch events for better tablet support
+    sidebarToggle.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      sidebar.classList.toggle('active');
+    });
+  }
+});
+</script>
+
+</html>

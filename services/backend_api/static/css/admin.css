@@ -1,0 +1,594 @@
+:root {
+  /* Dark mode defaults */
+  --primary-bg: #1e1e1e;
+  --secondary-bg: #121212;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --accent: #1DB954;
+
+  /* Added the following custom properties for chart lines, crosshair, watermark, candles */
+  --grid-line-color: rgba(42, 46, 57, 0.6);
+  --crosshair-color: rgba(224, 227, 235, 0.4);
+  --watermark-color: rgba(171, 71, 188, 0.2);
+  --candle-up: #26a69a;
+  --candle-down: #ef5350;
+}
+
+body.light-mode {
+  /* Light mode overrides */
+  --primary-bg: #f8fafc;
+  --secondary-bg: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --border-color: #cbd5e1;
+  --accent: #1DB954;
+
+  /* Adjust these for light mode chart appearance as you like */
+  --grid-line-color: rgba(197, 203, 206, 0.4);
+  --crosshair-color: rgba(128, 128, 128, 0.5);
+  --watermark-color: rgba(171, 71, 188, 0.2);
+  --candle-up: #26a69a;
+  --candle-down: #ef5350;
+}
+
+
+/* Reset & Typography */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Navbar Navigation */
+.navbar {
+  background-color: var(--secondary-bg);
+  padding-left: 26vh;
+  display: flex;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.navbar nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+nav a {
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  color: var(--text-primary);
+  /* updated from fixed #fff */
+  text-decoration: none;
+}
+
+nav a:hover {
+  background: var(--primary-bg);
+}
+
+.navbar-line {
+  border: none;
+  height: 2px;
+  background-color: var(--border-color);
+  margin: 0;
+}
+
+/* Live Clock */
+
+.live-clock {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--secondary-bg);
+  padding: 0.5rem 1.5rem;
+  border-radius: 24px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+/* Layout */
+.dashboard-container {
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  margin-left: 140px;
+}
+
+
+.brand-logo {
+  height: 160px;
+  margin-top: 19px;
+  margin-left: -6px;
+  width: auto;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.nav-item.active {
+  background: var(--primary-bg);
+  color: var(--text-primary);
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+/* Header Controls */
+.header-controls {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.header-controls button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Sidebar */
+aside.sidebar {
+  position: fixed;
+  background-color: var(--secondary-bg);
+  border-right: 1px solid var(--border-color);
+  padding: 30px;
+  height: 100%;
+  margin-top: -25px;
+}
+
+
+aside.sidebar ul {
+  list-style: none;
+}
+
+aside.sidebar li {
+  margin-bottom: 15px;
+}
+
+aside.sidebar li a {
+  padding: 10px;
+  display: block;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  color: #fff;
+}
+
+aside.sidebar li a:hover {
+  background-color: #1DB954; /* Green color on hover */
+}
+
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Minimal Flex Utilities (used in control panel) */
+.d-flex {
+  display: flex;
+}
+.justify-content-between {
+  justify-content: space-between;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+/* Layout Containers */
+.container {
+  margin-left: 130px;
+  margin-right: 10px;
+  margin-top: -8px;
+  min-height: calc(100vh - 70px);
+}
+
+
+/* Card Component */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid #3d3d3d;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  background-color: #3d3d3d;
+  padding: 10px 20px;
+  border-bottom: 1px solid #4d4d4d;
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* System Configuration Form */
+#systemConfigForm {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+#systemConfigForm .col-auto {
+  flex: 1;
+  min-width: 150px;
+}
+
+#systemConfigForm .form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+}
+
+.form-control {
+  background-color: #3d3d3d;
+  border: 1px solid #4d4d4d;
+  color: var(--text-light);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  width: 100%;
+}
+
+.filter-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 5px 10px;
+  margin: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+}
+/* Theme Toggle */
+.theme-switch-wrapper {
+  display: flex;
+  padding-left: 100vh;
+  align-items: center;
+}
+
+.theme-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.theme-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border-color);
+  /* updated from #ccc */
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.theme-switch .slider::before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.theme-switch input:checked+.slider {
+  background-color: var(--accent);
+}
+
+.theme-switch input:checked+.slider:before {
+  transform: translateX(24px);
+}
+/* Button Styles */
+.btn,
+.btn-primary,
+#systemConfigForm .btn {
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary,
+#systemConfigForm .btn {
+  background-color: rgba(255, 255, 255, 0.6);
+  color: #fff;
+}
+
+.btn-primary:hover,
+#systemConfigForm .btn:hover {
+  filter: brightness(90%);
+}
+
+/* Progress Bars (used in System Metrics) */
+.progress {
+  background-color: #3d3d3d;
+  border-radius: 5px;
+  overflow: hidden;
+  height: 30px;
+}
+
+.progress-bar {
+  background-color: var(--primary-color);
+  height: 100%;
+  text-align: center;
+  color: #fff;
+  line-height: 30px;
+  transition: width 0.3s ease;
+}
+
+/* Table Styles (used in System Processes) */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #3d3d3d;
+}
+
+.table th {
+  background-color: #3d3d3d;
+  font-weight: 600;
+}
+
+.table-dark {
+  background-color: var(--card-bg);
+  color: var(--text-light);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.075);
+}
+
+.table-responsive {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  background-color: var(--card-bg);
+}
+
+/* Chart Container */
+.chart-container {
+  position: relative;
+  height: 400px;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+/* Control Panel */
+.control-panel {
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 10px;
+  /* margin-bottom: 10px; */
+}
+
+.status-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-active {
+  background-color: #00ff00;
+}
+
+.status-inactive {
+  background-color: #ff0000;
+}
+
+.btn-custom {
+  background-color: rgba(255, 255, 255, 0.6);
+  color: #000;
+  margin: 5px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-custom:hover {
+  background-color: #333 ;
+}
+
+/* Form Select (used in Control Panel) */
+.form-select {
+  background-color: #3d3d3d;
+  border: 1px solid #4d4d4d;
+  color: var(--text-light);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+}
+/* Custom class for red button */
+.btn-red {
+  background-color: rgba(233, 200, 16, 0.651) !important;
+  border-color: rgba(233, 200, 16, 0.651) !important;
+  color: white !important;
+}
+
+.btn-red:hover {
+  background-color: darkred !important;
+  border-color: darkred !important;
+}
+/* Custom class for red button */
+.btn-green {
+  background-color: red !important;
+  border-color: red !important;
+  color: white !important;
+}
+
+.btn-green:hover {
+  background-color: darkred !important;
+  border-color: darkred !important;
+}
+
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  header {
+    padding: 15px 20px;
+  }
+  
+  nav {
+    gap: 15px;
+  }
+  
+  .container {
+    margin-left: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    display: block !important;
+    margin-left: 0 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+  .container {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 0 5px !important;
+    min-width: 0 !important;
+  }
+  .card, .card-body, .card-header {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  .control-panel, .status-indicator {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+  #totalCapitalForm, #systemConfigForm {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+  #totalCapitalForm > div, #systemConfigForm > div {
+    margin-right: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+  .form-control, .form-select, textarea {
+    font-size: 1.1rem !important;
+    padding: 0.75rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+  .btn, .btn-custom, .btn-primary {
+    font-size: 1.1rem !important;
+    padding: 0.75rem 1.5rem !important;
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .live-clock, .theme-switch-wrapper {
+    position: static !important;
+    transform: none !important;
+    width: 100% !important;
+    margin: 0.5rem 0 !important;
+    text-align: center !important;
+    padding: 0.5rem 0 !important;
+  }
+  .navbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding-left: 0 !important;
+    gap: 0.5rem !important;
+  }
+  .navbar nav {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    align-items: stretch !important;
+  }
+  nav a, .performance-btn {
+    width: 100% !important;
+    text-align: center !important;
+    font-size: 1.1rem !important;
+    padding: 0.75rem 0 !important;
+  }
+  .progress {
+    height: 20px !important;
+  }
+  /* Ensure tables are scrollable */
+  .table-responsive, .table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+  }
+}
+
+/* Force the totalCapitalForm to be a flex container */
+#totalCapitalForm {
+  display: flex;
+  align-items: center; /* vertically centers the items */
+  flex-wrap: nowrap;   /* prevents items from wrapping */
+}
+
+/* Add spacing between form groups if desired */
+#totalCapitalForm > div {
+  margin-right: 1rem;
+}
+
+/* Optional: Remove margin from the last item */
+#totalCapitalForm > div:last-child {
+  margin-right: 0;
+}

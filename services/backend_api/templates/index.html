@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The One Alpha Trading Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Socket.io -->
+  <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+  <!-- Your CSS files -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/chart.css') }}"> -->
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+  <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+  
+  <!-- Additional CSS for Notifications -->
+  <style>
+    /* Notification Container */
+    #notificationContainer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      max-width: 350px;
+      pointer-events: none;
+    }
+    
+    /* Notification Popup Styles */
+    .notification-popup {
+      pointer-events: all;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: slideInRight 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .notification-popup.success {
+      background: linear-gradient(135deg, #059669, #065f46);
+      color: white;
+    }
+    
+    .notification-popup.error {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      color: white;
+    }
+    
+    .notification-popup.info {
+      background: linear-gradient(135deg, #0891b2, #164e63);
+      color: white;
+    }
+    
+    .notification-popup .notification-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    
+    .notification-popup .close-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    }
+    
+    .notification-popup .close-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .notification-popup .notification-content p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    
+    .notification-popup .pnl-display {
+      margin-top: 8px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    
+    /* Animation */
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    /* Notification Toggle Button */
+    #notificationToggleBtn {
+      background-color: #dc2626;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    
+    #notificationToggleBtn:hover {
+      opacity: 0.9;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      #notificationContainer {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+      
+      .notification-popup {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Notification Container (will be created by JS if needed) -->
+  <div id="notificationContainer"></div>
+  
+  <div class="header">
+    <img src="https://www.theonealpha.com/uploads/logo.png" alt="The One Alpha Logo" class="header-logo">
+    <!-- <div id="liveTime">21/06/2025, 01:47:39 PM</div> -->
+    <div class="navbar">
+      <nav>
+        <a href="/" class="performance-btn">Dashboard</a>
+        <a href="/chart" class="performance-btn">Charts</a>
+        <a href="/admin/dashboard" class="performance-btn hide-on-mobile">Admin</a>
+          <select id="exchange-type" name="exchange-type" class="filter-btn">
+            <option id="nse-filter-btn" value="nse">NSE</option>
+            <option id="crypto-filter-btn" value="binance">CRYPTO</option>
+          </select>
+        <button id="sidebarToggle" class="mobile-only">☰</button>
+      </nav>
+    </div>
+  </div>
+  <hr class="navbar-line">
+
+<div class="containerr">
+  <aside id="sidebar" class="sidebar">
+    <div class="logo">
+      <img src="https://www.theonealpha.com/uploads/logo.png" alt="The One Alpha Logo">
+    </div>
+    <a href="#" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">Overview</a>
+    <a href="#" id="activeBtn" class="nav-item {% if active_page == 'chart' %}active{% endif %}">Deal Queue</a>
+    <a href="#" id="historyBtn" class="nav-item {% if active_page == 'chart' %}active{% endif %}">History</a>
+    <a href="#" id="notificationsBtn" class="nav-item {% if active_page == 'admin' %}active{% endif %}">Notifications</a>
+    <a href="#" class="nav-item {% if active_page == 'admin' %}active{% endif %}">Settings</a>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <!-- Main Header with Controls -->
+      <header class="main-header">
+        <div class="time-range-selector">
+          <div class="range-selector-group">
+            <button class="range-btn active" data-range="1w">1W</button>
+            <button class="range-btn" data-range="1m">1M</button>
+            <button class="range-btn" data-range="3m">3M</button>
+            <button class="range-btn" data-range="6m">6M</button>
+            <button class="range-btn" data-range="1y">1Y</button>
+            <button class="range-btn" data-range="all">ALL</button>
+          </div>
+        </div>
+        <div class="header-right ">
+          <div class="notification-controls">
+            <button class="notifications-clear" id="clearNotificationsBtn">🗑️ Clear</button>
+            <div class="divider"></div>
+            <button id="toggleNotificationPanel" class="notifications-toggle">🔔 Toggle</button>
+            <!-- Notification toggle button -->
+            <button id="notificationToggleBtn" class="btn">Disable Popups</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Key Metrics Dashboard -->
+      <section class="metrics-section">
+        <div class="metrics-grid">
+          <div class="metric-card accent">
+            <div class="metric-content">
+              <span class="metric-label">Starting Capital</span>
+              <span class="metric-value" id="starting_capital"></span>
+            </div>
+          </div>
+          <div class="metric-card accent">
+            <div class="metric-content">
+              <span class="metric-label">Current Capital</span>
+              <span class="metric-value" id="ending_capital"></span>
+            </div>
+          </div>
+          <div class="metric-card accent">
+            <div class="metric-content">
+              <span class="metric-label">Net Collection</span>
+              <span class="metric-value" id="netcollection">0</span>
+            </div>
+          </div>
+          <div class="metric-card accent">
+            <div class="metric-content">
+              <span class="metric-label">ROI</span>
+              <span class="metric-value" id="roiVal"></span>
+            </div>
+          </div>
+          <div class="metric-card accent">
+            <div class="metric-content ">
+              <span class="metric-label">Active Deals (Max 15)</span>
+              <span class="metric-value" id="activeTradesCount"></span>
+            </div>
+          </div>
+          <div class="metric-card accent">
+            <div class="metric-content">
+              <span class="metric-label">Closed Deals</span>
+              <span class="metric-value" id="closeTradesCount">0</span>
+            </div>
+          </div>
+          <div class="metric-card accent">
+            <div class="metric-content">
+              <span class="metric-label">Avg Deal Time</span>
+              <span class="metric-value" id="averagedealtime">0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Performance Analytics Container -->
+      <section class="performance-container">
+        <div class="chart-section">
+          <div class="section-header">
+            <h2>Capital Over Time</h2>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-color capital"></span>
+              </div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="tradePerformanceChart"></canvas>
+          </div>
+        </div>
+        <div class="deal-book">
+          <div class="section-header">
+            <h2>Deal Book</h2>
+            <div class="history-filters">
+              <button class="filter-btn active" id="filterAllBtn">All</button>
+              <button class="filter-btn" id="filterActiveBtn">Active</button>
+              <button class="filter-btn" id="filterClosedBtn">Closed</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Pairs</th>
+                    <th>Type</th>
+                    <th>Impact</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tradeHistoryBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notifications Section -->
+      <section class="notifications">
+        <div class="section-header">
+          <h2>Notifications</h2>
+        </div>
+        <div class="notifications-list" id="notificationsList"></div>
+        <div class="pagination" id="notificationsPagination"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Popup -->
+<div id="popupModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" id="modalClose">×</span>
+    <div id="popupContent"></div>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script src="{{ url_for('static', filename='js/test.js') }}"></script>
+<script src="{{ url_for('static', filename='js/timeUtils.js') }}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+
+  if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', (event) => {
+      event.stopPropagation();
+      sidebar.classList.toggle('active');
+    });
+
+    sidebar.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+        sidebar.classList.remove('active');
+      }
+    });
+
+    // Handle touch events for better tablet support
+    sidebarToggle.addEventListener('touchstart', (event) => {
+      event.preventDefault();
+      sidebar.classList.toggle('active');
+    });
+  }
+});
+
+</script>
+</body>
+</html>
